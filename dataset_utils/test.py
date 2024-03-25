@@ -1,19 +1,19 @@
 import json
+import os
 import pickle
+import sys
 import time
 from queue import Queue, Empty
 from threading import Thread, Event
 
-import numpy as np
-import os
-import sys
 import cv2
-
-# Multithreded script to run the evaluation for the Transform2D and Transform3D methods. Online version displays the
-# result. Offline version first saves all detections and then tracks them separately.
+import numpy as np
 
 # Also includes a method to visually check the generated datasets.
 from dataset_utils.utils import FolderVideoReader, deprocess_image
+
+# Multithreded script to run the evaluation for the Transform2D and Transform3D methods. Online version displays the
+# result. Offline version first saves all detections and then tracks them separately.
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -22,11 +22,10 @@ if __name__ == "__main__" and __package__ is None:
     print(sys.path)
 
 from dataset_utils.tracker import Tracker
-from dataset_utils.warper import get_transform_matrix, get_transform_matrix_with_criterion
-from dataset_utils.geometry import distance, computeCameraCalibration
+from dataset_utils.warper import get_transform_matrix_with_criterion
+from dataset_utils.geometry import computeCameraCalibration
 from dataset_utils.writer import Writer
 from keras_retinanet.utils.image import preprocess_image
-from keras import backend as K
 
 import keras_retinanet.models
 
@@ -365,7 +364,8 @@ if __name__ == "__main__":
         dir_list = ['session{}_center'.format(i), 'session{}_left'.format(i), 'session{}_right'.format(i)]
         # dir_list = ['session{}_right'.format(i)]
         vid_list.extend([os.path.join(vid_path, d, 'video.avi') for d in dir_list])
-        calib_list.extend([os.path.join(results_path, d, 'system_SochorCVIU_Edgelets_BBScale_Reg.json') for d in dir_list])
+        calib_list.extend(
+            [os.path.join(results_path, d, 'system_SochorCVIU_Edgelets_BBScale_Reg.json') for d in dir_list])
 
     # on luvizon datset
     # if os.name == 'nt':
@@ -398,7 +398,8 @@ if __name__ == "__main__":
     model._make_predict_function()
 
     for vid, calib in zip(vid_list, calib_list):
-        test_video(model, vid, calib, width, height, 16, name, pair, online=True, fake=False)  # out_path='D:/Skola/PhD/code/keras-retinanet/video_results/center_6_12.avi')
+        test_video(model, vid, calib, width, height, 16, name, pair, online=True,
+                   fake=False)  # out_path='D:/Skola/PhD/code/keras-retinanet/video_results/center_6_12.avi')
 
     # thresholds = [0.2, 0.3, 0.4, 0.5]
     thresholds = [0.5]
