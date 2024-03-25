@@ -9,17 +9,17 @@ from threading import Thread, Event
 import cv2
 import numpy as np
 
-# Also includes a method to visually check the generated datasets.
-from dataset_utils.utils import FolderVideoReader, deprocess_image
-
-# Multithreded script to run the evaluation for the Transform2D and Transform3D methods. Online version displays the
-# result. Offline version first saves all detections and then tracks them separately.
-
 if __name__ == "__main__" and __package__ is None:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     # import keras_retinanet.bin  # noqa: F401
     # __package__ = "keras_retinanet.bin"
     print(sys.path)
+
+# Also includes a method to visually check the generated datasets.
+from dataset_utils.utils import FolderVideoReader, deprocess_image
+
+# Multithreded script to run the evaluation for the Transform2D and Transform3D methods. Online version displays the
+# result. Offline version first saves all detections and then tracks them separately.
 
 from dataset_utils.tracker import Tracker
 from dataset_utils.warper import get_transform_matrix_with_criterion
@@ -347,10 +347,10 @@ if __name__ == "__main__":
         vid_path = 'D:/Skola/PhD/data/2016-ITS-BrnoCompSpeed/dataset'
         results_path = 'D:/Skola/PhD/data/2016-ITS-BrnoCompSpeed/results/'
     else:
-        vid_path = '/home/k/kocur15/data/2016-ITS-BrnoCompSpeed/dataset/'
-        results_path = '/home/k/kocur15/data/2016-ITS-BrnoCompSpeed/results/'
+        vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/'
+        results_path = '/home/manu/nfs/BCS_results/BCS_results_VP2VP3'
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
     # import tensorflow as tf
     # from keras import backend as k
@@ -365,7 +365,7 @@ if __name__ == "__main__":
         # dir_list = ['session{}_right'.format(i)]
         vid_list.extend([os.path.join(vid_path, d, 'video.avi') for d in dir_list])
         calib_list.extend(
-            [os.path.join(results_path, d, 'system_SochorCVIU_Edgelets_BBScale_Reg.json') for d in dir_list])
+            [os.path.join(results_path, d, 'system_Transform3D_640_360_VP2VP3.json') for d in dir_list])
 
     # on luvizon datset
     # if os.name == 'nt':
@@ -390,15 +390,16 @@ if __name__ == "__main__":
             'D:/Skola/PhD/code/keras_retinanet_MVAA/models/resnet50_{}.h5'.format(name),
             backbone_name='resnet50', convert=False)
     else:
+        print('/media/manu/data/data/{}/resnet50_{}.h5'.format(name, name))
         model = keras_retinanet.models.load_model(
-            '/home/k/kocur15/code/keras-retinanet/snapshots/{}/resnet50_{}.h5'.format(name, name),
+            '/media/manu/data/data/{}/resnet50_{}.h5'.format(name, name),
             backbone_name='resnet50', convert=False)
 
     print(model.summary)
     model._make_predict_function()
 
     for vid, calib in zip(vid_list, calib_list):
-        test_video(model, vid, calib, width, height, 16, name, pair, online=True,
+        test_video(model, vid, calib, width, height, 16, name, pair, online=False,
                    fake=False)  # out_path='D:/Skola/PhD/code/keras-retinanet/video_results/center_6_12.avi')
 
     # thresholds = [0.2, 0.3, 0.4, 0.5]
