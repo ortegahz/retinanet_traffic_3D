@@ -59,8 +59,8 @@ def draw_raw_output(images, y_pred, threshold=0.5, cnt=None):
 
         # if cnt is not None:
         #     cv2.imwrite('frames/raw_out_{}_{}.jpg'.format(cnt, i), image)
-        cv2.imshow("Raw out", image)
-        cv2.waitKey(1)
+        # cv2.imshow("Raw out", image)
+        # cv2.waitKey(1)
 
 
 def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_path=None, compare=False, online=True,
@@ -399,7 +399,7 @@ if __name__ == "__main__":
     model._make_predict_function()
 
     for vid, calib in zip(vid_list, calib_list):
-        test_video(model, vid, calib, width, height, 16, name, pair, online=False,
+        test_video(model, vid, calib, width, height, 16, name, pair, online=True,
                    fake=False)  # out_path='D:/Skola/PhD/code/keras-retinanet/video_results/center_6_12.avi')
 
     # thresholds = [0.2, 0.3, 0.4, 0.5]
