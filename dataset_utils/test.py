@@ -347,8 +347,8 @@ if __name__ == "__main__":
         vid_path = 'D:/Research/data/2016-ITS-BrnoCompSpeed/dataset'
         results_path = 'D:/Research/data/2016-ITS-BrnoCompSpeed/results/'
     else:
-        vid_path = '/home/k/kocur15/data/2016-ITS-BrnoCompSpeed/dataset/'
-        results_path = '/home/k/kocur15/data/2016-ITS-BrnoCompSpeed/results/'
+        vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset'
+        results_path = '/home/manu/nfs/BCS_results/BCS_results_VP2VP3'
 
     os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
@@ -391,7 +391,7 @@ if __name__ == "__main__":
             backbone_name='resnet50', convert=False)
     else:
         model = keras_retinanet.models.load_model(
-            '/home/k/kocur15/code/keras-retinanet/snapshots/{}/resnet50_{}.h5'.format(name, name),
+            '/media/manu/data/data/640_360_23/{}/resnet50_{}.h5'.format(name, name),
             backbone_name='resnet50', convert=False)
 
     print(model.summary)

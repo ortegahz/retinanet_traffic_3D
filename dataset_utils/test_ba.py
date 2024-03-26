@@ -1,22 +1,19 @@
 import argparse
 import json
-import math
-import pickle
+import os
+import sys
 import time
 from queue import Queue, Empty
 from threading import Thread, Event
 
-import numpy as np
-import os
-import sys
 import cv2
-
-# Multithreded script to run the evaluation for the Transform2D and Transform3D methods. Online version displays the
-# result. Offline version first saves all detections and then tracks them separately.
+import numpy as np
 
 # Also includes a method to visually check the generated datasets.
 from dataset_utils.tracker import Tracker
-from dataset_utils.utils import FolderVideoReader, deprocess_image
+
+# Multithreded script to run the evaluation for the Transform2D and Transform3D methods. Online version displays the
+# result. Offline version first saves all detections and then tracks them separately.
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -24,12 +21,10 @@ if __name__ == "__main__" and __package__ is None:
     # __package__ = "keras_retinanet.bin"
     print(sys.path)
 
-from dataset_utils.warper import get_transform_matrix, get_transform_matrix_with_criterion, warp_point
-from dataset_utils.geometry import distance, computeCameraCalibration, intersection, line, \
-    getWorldCoordinagesOnRoadPlane
+from dataset_utils.warper import get_transform_matrix_with_criterion
+from dataset_utils.geometry import computeCameraCalibration, getWorldCoordinagesOnRoadPlane
 from dataset_utils.writer import Writer
 from keras_retinanet.utils.image import preprocess_image
-from keras import backend as K
 
 import keras_retinanet.models
 
@@ -39,9 +34,11 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 
 class TrackerBA(Tracker):
-    def __init__(self, projector, fps, json_path, M, IM, vp1, vp2, vp3, im_w, im_h, name, threshold=0.7, pair='23', keep=5,
+    def __init__(self, projector, fps, json_path, M, IM, vp1, vp2, vp3, im_w, im_h, name, threshold=0.7, pair='23',
+                 keep=5,
                  compare=False, fake=False, write_name=None, save_often=True):
-        super().__init__(json_path, M, IM, vp1, vp2, vp3, im_w, im_h, name, threshold, pair, keep, compare, fake, write_name, save_often)
+        super().__init__(json_path, M, IM, vp1, vp2, vp3, im_w, im_h, name, threshold, pair, keep, compare, fake,
+                         write_name, save_often)
 
         self.projector = projector
         self.fps = fps
@@ -117,13 +114,13 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
         camera_calibration = structure['camera_calibration']
 
     vp1, vp2, vp3, pp, roadPlane, focal = computeCameraCalibration(camera_calibration["vp1"], camera_calibration["vp2"],
-                                                      camera_calibration["pp"])
+                                                                   camera_calibration["pp"])
     vp1 = vp1[:-1] / vp1[-1]
     vp2 = vp2[:-1] / vp2[-1]
     vp3 = vp3[:-1] / vp3[-1]
 
     scale = camera_calibration['scale']
-    projector = lambda x : scale * getWorldCoordinagesOnRoadPlane(x, focal, roadPlane, pp)
+    projector = lambda x: scale * getWorldCoordinagesOnRoadPlane(x, focal, roadPlane, pp)
 
     # if os.path.isdir(video_path):
     #     cap = FolderVideoReader(video_path)
@@ -237,7 +234,8 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
             #     draw_raw_output(images, y_pred, cnt=cnt)
 
     def postprocess():
-        tracker = TrackerBA(projector, fps, json_path, M, IM, vp1, vp2, vp3, im_w, im_h, name, pair=pair, threshold=0.3, compare=compare, fake=fake)
+        tracker = TrackerBA(projector, fps, json_path, M, IM, vp1, vp2, vp3, im_w, im_h, name, pair=pair, threshold=0.3,
+                            compare=compare, fake=fake)
         counter = 0
         total_time = time.time()
         while not e_stop.isSet():
@@ -315,17 +313,16 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
         out.release()
 
 
-
 def parse_command_line():
     """ Parser used for training and inference returns args. Sets up GPUs."""
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--output_path', default=None, help='Path to output video')
     parser.add_argument('-b', '--batch_size', default=16, type=int, help='Batch size for inference')
     # parser.add_argument('-f', '--fps', default=25.0, type=float, help='Video FPS')
-    parser.add_argument('-s', '--show', default=False, action='store_true', help='Whether to show video')
-    parser.add_argument('model_path', help='Path to model')
-    parser.add_argument('vid_path', help='Path to video')
-    parser.add_argument('calib_path', help='Path to calib file')
+    parser.add_argument('-s', '--show', default=True, action='store_true', help='Whether to show video')
+    # parser.add_argument('model_path', default='/media/manu/data/data/640_360_23/resnet50_640_360_23.h5')
+    # parser.add_argument('vid_path', default='/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session4_center/video.avi')
+    # parser.add_argument('calib_path', default='/home/manu/nfs/BCS_results/BCS_results_VP2VP3/session4_center/system_Transform3D_640_360_VP2VP3.json')
     args = parser.parse_args()
     return args
 
@@ -335,12 +332,14 @@ if __name__ == "__main__":
 
     args = parse_command_line()
 
-    model = keras_retinanet.models.load_model(args.model_path, backbone_name='resnet50', convert=False)
+    model_path = '/media/manu/data/data/640_360_23/resnet50_640_360_23.h5'
+    vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session4_center/video.avi'
+    calib_path = '/home/manu/nfs/BCS_results/BCS_results_VP2VP3/session4_center/system_Transform3D_640_360_VP2VP3.json'
+
+    model = keras_retinanet.models.load_model(model_path, backbone_name='resnet50', convert=False)
 
     print(model.summary)
     model._make_predict_function()
 
-    vid_path = 'D:/Research/data/BASpeed/Zochova/video.m4v'
-    calib_path = 'D:/Research/data/BASpeed/Zochova/calib.json'
-
-    test_video(model, args.vid_path, args.calib_path, 640, 360, args.batch_size, 'result', '23', online=True, fake=False, out_path=args.output_path, show=args.show)
+    test_video(model, vid_path, calib_path, 640, 360, args.batch_size, 'result', '23', online=True,
+               fake=False, out_path=args.output_path, show=args.show)
