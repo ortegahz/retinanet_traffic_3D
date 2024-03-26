@@ -4,3 +4,7 @@ __pycache__/
 *.so
 /.pytest_cache
 /.cache
+
+\.idea/
+
+build/temp\.linux-x86_64-3\.6/keras_retinanet/utils/compute_overlap\.o
