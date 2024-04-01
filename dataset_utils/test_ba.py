@@ -120,6 +120,7 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
     vp3 = vp3[:-1] / vp3[-1]
 
     scale = camera_calibration['scale']
+    # scale = 0.015701104920384356
     projector = lambda x: scale * getWorldCoordinagesOnRoadPlane(x, focal, roadPlane, pp)
 
     # if os.path.isdir(video_path):
@@ -128,7 +129,7 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
     # else:
     cap = cv2.VideoCapture(video_path)
     video_dir = os.path.dirname(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    fps = cap.get(cv2.CAP_PROP_FPS) / 2
 
     if os.path.exists(os.path.join(video_dir, 'video_mask.png')):
         mask = cv2.imread(os.path.join(video_dir, 'video_mask.png'), 0)
@@ -316,7 +317,7 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
 def parse_command_line():
     """ Parser used for training and inference returns args. Sets up GPUs."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output_path', default=None, help='Path to output video')
+    parser.add_argument('-o', '--output_path', default='/home/manu/tmp/ba.avi', help='Path to output video')
     parser.add_argument('-b', '--batch_size', default=16, type=int, help='Batch size for inference')
     # parser.add_argument('-f', '--fps', default=25.0, type=float, help='Video FPS')
     parser.add_argument('-s', '--show', default=True, action='store_true', help='Whether to show video')
@@ -333,8 +334,11 @@ if __name__ == "__main__":
     args = parse_command_line()
 
     model_path = '/media/manu/data/data/640_360_23/resnet50_640_360_23.h5'
-    vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session4_center/video.avi'
-    calib_path = '/home/manu/nfs/BCS_results/BCS_results_VP2VP3/session4_center/system_Transform3D_640_360_VP2VP3.json'
+    vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session6_center/video.avi'
+    # vid_path = '/home/manu/tmp/che-20-20240328_103814.mp4'
+    # calib_path = '/home/manu/nfs/BCS_results/BCS_results_VP2VP3/session6_center/system_Transform3D_640_360_VP2VP3.json'
+    calib_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/results/session6_center/system_dubska_optimal_scale_vp2.json'
+    # calib_path = '/home/manu/tmp/video.json'
 
     model = keras_retinanet.models.load_model(model_path, backbone_name='resnet50', convert=False)
 

@@ -1,11 +1,11 @@
-import os
-import cv2
 import json
-import sys
+import os
+
+import cv2
 import numpy as np
 
-from dataset_utils.utils import FolderVideoReader
 from dataset_utils.diamond_accumulator import Accumulator
+from dataset_utils.utils import FolderVideoReader
 
 element_small = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 element_big = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
@@ -225,4 +225,5 @@ if __name__ == "__main__":
     # for vid, calib in zip(vid_list, calib_list):
     #     calib_video(vid, debug=False, out_path=calib)
 
-    calib_video('D:/Research/data/BASpeed/Zochova/video.m4v', out_path='D:/Research/data/BASpeed/Zochova/zochova.json', debug=True)
+    calib_video('/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session6_center/video.avi',
+                out_path='/home/manu/tmp/video.json', debug=False)
