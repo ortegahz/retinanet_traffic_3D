@@ -11,26 +11,38 @@ element_small = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 element_big = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 element_loc_max = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
+camera_matrix = np.array([[6715.380429, 0.000000, 967.699278],
+                          [0.000000, 6677.400513, 527.052561],
+                          [0.000000, 0.000000, 1.000000]])
+dist_coeffs = np.array([-0.155463, -6.737837, 0.009480, 0.004742, 0.000000])
+
 
 def get_vp1(cap, mask, debug=False):
     lk_params = dict(winSize=(31, 31), maxLevel=4, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     feature_params = dict(maxCorners=20, qualityLevel=0.4, minDistance=10, blockSize=11)
     ret, prev_frame = cap.read()
+    prev_frame = cv2.resize(prev_frame, (1920, 1080), interpolation=cv2.INTER_AREA)
+    prev_frame = cv2.undistort(prev_frame, camera_matrix, dist_coeffs)
     # prev_frame = cv2.bitwise_and(prev_frame, prev_frame, mask=mask)
     prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
 
     acc = Accumulator(size=256, debug=debug, height=mask.shape[0], width=mask.shape[1])
     cnt = 0
     while ret and cnt < 1000:
+    # while ret:
         ret, next_frame = cap.read()
         if not ret or next_frame is None:
             continue
+        next_frame = cv2.resize(next_frame, (1920, 1080), interpolation=cv2.INTER_AREA)
+        next_frame = cv2.undistort(next_frame, camera_matrix, dist_coeffs)
         # next_frame = cv2.bitwise_and(next_frame, next_frame, mask=mask)
         cnt += 1
 
         next_gray = cv2.cvtColor(next_frame, cv2.COLOR_BGR2GRAY)
 
         p0 = cv2.goodFeaturesToTrack(prev_gray, mask=mask, **feature_params)
+        if p0 is None:
+            continue
         p1, st, err = cv2.calcOpticalFlowPyrLK(prev_gray, next_gray, p0, None, **lk_params)
 
         good_p1 = p1[st == 1]
@@ -72,10 +84,13 @@ def get_vp2(vp1, cap, mask, skip=10, debug=False):
     ret = True
 
     while ret and cnt < 1000:
+    # while ret:
         for _ in range(skip):
             ret, frame = cap.read()
         if frame is None:
             continue
+        frame = cv2.resize(frame, (1920, 1080), interpolation=cv2.INTER_AREA)
+        frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
         cnt += 1
         frame = cv2.bitwise_and(frame, frame, mask=mask)
 
@@ -225,5 +240,8 @@ if __name__ == "__main__":
     # for vid, calib in zip(vid_list, calib_list):
     #     calib_video(vid, debug=False, out_path=calib)
 
-    calib_video('/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session6_center/video.avi',
-                out_path='/home/manu/tmp/video.json', debug=False)
+    vid = '/media/manu/data/videos/vlc-record-2024-04-02-10h31m02s-rtsp___192.168.1.108_554_cam_realmonitor-.mp4'
+    # vid = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session5_center/video.avi'
+    # vid = '/home/manu/tmp/che-30-20240328_110225.mp4'
+    # vid = '/media/manu/data/data/vehicle-speed/Set05_video01-002.h264'
+    calib_video(vid, out_path='/home/manu/tmp/video.json', debug=False)

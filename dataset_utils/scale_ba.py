@@ -48,7 +48,7 @@ def manual_scale(vid_path, calib_path, real_dist):
 
 
 if __name__ == '__main__':
-    vid_path = 'D:/Research/data/BASpeed/Zochova/video.m4v'
-    calib_path = 'D:/Research/data/BASpeed/Zochova/calib.json'
+    vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session5_center/video.avi'
+    calib_path = '/home/manu/tmp/video.json'
 
     manual_scale(vid_path, calib_path, 0.6)
