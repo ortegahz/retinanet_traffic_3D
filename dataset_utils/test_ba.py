@@ -9,6 +9,8 @@ from threading import Thread, Event
 import cv2
 import numpy as np
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from dataset_utils.calib import camera_matrix, dist_coeffs
 # Also includes a method to visually check the generated datasets.
 from dataset_utils.tracker import Tracker
@@ -50,56 +52,56 @@ class TrackerBA(Tracker):
 
         bb_tt = [tuple(point) for point in bb_tt]
 
-        # image_b = cv2.line(image_b, bb_tt[0], bb_tt[1], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[1], bb_tt[2], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[2], bb_tt[3], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[3], bb_tt[0], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[0], bb_tt[4], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[1], bb_tt[5], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[2], bb_tt[6], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[3], bb_tt[7], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[4], bb_tt[5], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[5], bb_tt[6], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[6], bb_tt[7], (0, 128, 0), 9)
-        # image_b = cv2.line(image_b, bb_tt[7], bb_tt[4], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[0], bb_tt[1], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[1], bb_tt[2], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[2], bb_tt[3], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[3], bb_tt[0], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[0], bb_tt[4], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[1], bb_tt[5], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[2], bb_tt[6], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[3], bb_tt[7], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[4], bb_tt[5], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[5], bb_tt[6], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[6], bb_tt[7], (0, 128, 0), 9)
+        image_b = cv2.line(image_b, bb_tt[7], bb_tt[4], (0, 128, 0), 9)
 
         id = track.id
         speed = track.get_speed(self.projector, self.fps)
 
-        # image_b = cv2.putText(image_b, '{}:{:.2f}'.format(id, speed), bb_tt[3], font, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        image_b = cv2.putText(image_b, '{}:{:.2f}'.format(id, speed), bb_tt[3], font, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-        # image_b = cv2.circle(image_b, (int(center[0]), int(center[1])), 5, (0, 255, 255), 5)
+        image_b = cv2.circle(image_b, (int(center[0]), int(center[1])), 5, (0, 255, 255), 5)
 
-        points = np.array([[box[1], box[2]], [box[3], box[4]]])
-        transformed_points = cv2.perspectiveTransform(np.array([points]), self.IM)
-        speed_gt_dict = dict()
-        speed_gt_dict[357], speed_gt_dict[483], speed_gt_dict[520] = 40, 50, 60
-        # speed_gt_dict[6] = 30
-        image_b = cv2.putText(image_b, f'{id}',
-                              (int(transformed_points[0][1][0]), int(transformed_points[0][1][1])),
-                              font, 1, (255, 0, 0), 2, cv2.LINE_AA)
-        if id in speed_gt_dict.keys():
-            image_b = cv2.rectangle(image_b,
-                                    (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
-                                    (int(transformed_points[0][1][0]), int(transformed_points[0][1][1])),
-                                    (0, 255, 255), 5)
-            if 200 < transformed_points[0][0][1] < 600:
-                image_b = cv2.putText(image_b, f'if {speed:.2f} km/h',
-                                      (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
-                                      font, 1, (0, 255, 255), 2, cv2.LINE_AA)
-                image_b = cv2.putText(image_b, f'gt {speed_gt_dict[id]:.2f} km/h',
-                                      (int(transformed_points[0][0][0]), int(transformed_points[0][0][1]) + 30),
-                                      font, 1, (0, 0, 255), 2, cv2.LINE_AA)
-
-        else:
-            image_b = cv2.rectangle(image_b,
-                                    (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
-                                    (int(transformed_points[0][1][0]), int(transformed_points[0][1][1])),
-                                    (0, 255, 0), 5)
-            if 200 < transformed_points[0][0][1] < 600:
-                image_b = cv2.putText(image_b, f'{speed:.2f} km/h',
-                                      (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
-                                      font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        # points = np.array([[box[1], box[2]], [box[3], box[4]]])
+        # transformed_points = cv2.perspectiveTransform(np.array([points]), self.IM)
+        # speed_gt_dict = dict()
+        # speed_gt_dict[357], speed_gt_dict[483], speed_gt_dict[520] = 40, 50, 60
+        # # speed_gt_dict[6] = 30
+        # image_b = cv2.putText(image_b, f'{id}',
+        #                       (int(transformed_points[0][1][0]), int(transformed_points[0][1][1])),
+        #                       font, 1, (255, 0, 0), 2, cv2.LINE_AA)
+        # if id in speed_gt_dict.keys():
+        #     image_b = cv2.rectangle(image_b,
+        #                             (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
+        #                             (int(transformed_points[0][1][0]), int(transformed_points[0][1][1])),
+        #                             (0, 255, 255), 5)
+        #     if 200 < transformed_points[0][0][1] < 600:
+        #         image_b = cv2.putText(image_b, f'if {speed:.2f} km/h',
+        #                               (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
+        #                               font, 1, (0, 255, 255), 2, cv2.LINE_AA)
+        #         image_b = cv2.putText(image_b, f'gt {speed_gt_dict[id]:.2f} km/h',
+        #                               (int(transformed_points[0][0][0]), int(transformed_points[0][0][1]) + 30),
+        #                               font, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        #
+        # else:
+        #     image_b = cv2.rectangle(image_b,
+        #                             (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
+        #                             (int(transformed_points[0][1][0]), int(transformed_points[0][1][1])),
+        #                             (0, 255, 0), 5)
+        #     if 200 < transformed_points[0][0][1] < 600:
+        #         image_b = cv2.putText(image_b, f'{speed:.2f} km/h',
+        #                               (int(transformed_points[0][0][0]), int(transformed_points[0][0][1])),
+        #                               font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
         return image_b, center
 
@@ -151,7 +153,7 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
     vp2 = vp2[:-1] / vp2[-1]
     vp3 = vp3[:-1] / vp3[-1]
 
-    # scale = camera_calibration['scale'] * 1.5
+    # scale = camera_calibration['scale']
     scale = 0.015747718767165603 * 1.8 * (50 / 53.75)
     projector = lambda x: scale * getWorldCoordinagesOnRoadPlane(x, focal, roadPlane, pp)
 
@@ -162,6 +164,7 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
     cap = cv2.VideoCapture(video_path)
     video_dir = os.path.dirname(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
+    # fps = cap.get(cv2.CAP_PROP_FPS) / 2
 
     wr, hr = 1920, 1080
 
@@ -245,6 +248,8 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
                     q_images.put(None)
                     # e_stop.set()
                     break
+                frame = cv2.resize(frame, (1920, 1080), interpolation=cv2.INTER_AREA)
+                frame = cv2.undistort(frame, camera_matrix, dist_coeffs)
                 image = cv2.bitwise_and(frame, frame, mask=mask)
                 t_image = cv2.remap(image, map, None, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
                 t_image = preprocess_image(t_image)
@@ -355,7 +360,7 @@ def test_video(model, video_path, json_path, im_w, im_h, batch, name, pair, out_
 def parse_command_line():
     """ Parser used for training and inference returns args. Sets up GPUs."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output_path', default='/home/manu/tmp/ba.avi', help='Path to output video')
+    parser.add_argument('-o', '--output_path', default='/home/Huangzhe/tmp/ba.avi', help='Path to output video')
     parser.add_argument('-b', '--batch_size', default=16, type=int, help='Batch size for inference')
     # parser.add_argument('-f', '--fps', default=25.0, type=float, help='Video FPS')
     parser.add_argument('-s', '--show', default=True, action='store_true', help='Whether to show video')
@@ -369,21 +374,28 @@ def parse_command_line():
 if __name__ == "__main__":
     # model 640_360_23
 
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
     args = parse_command_line()
 
-    model_path = '/media/manu/data/data/640_360_23/resnet50_640_360_23.h5'
-    vid_path = '/media/manu/data/videos/vlc-record-2024-04-02-10h31m02s-rtsp___192.168.1.108_554_cam_realmonitor-.mp4'
+    model_path = '/home/Huangzhe/models/resnet50_640_360_23.h5'
+    vid_path = '/home/Huangzhe/videos/vlc-record-2024-04-02-10h31m02s-rtsp___192.168.1.108_554_cam_realmonitor-.mp4'
+    calib_path = '/home/Huangzhe/videos/video_good.json'
+
+    # model_path = '/media/manu/data/data/resnet50/resnet50_640_360_23.h5'
+    # vid_path = '/media/manu/data/videos/vlc-record-2024-04-02-10h31m02s-rtsp___192.168.1.108_554_cam_realmonitor-.mp4'
+    # calib_path = '/media/manu/data/videos/video_good.json'
+
     # vid_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session5_center/video.avi'
     # vid_path = '/home/manu/tmp/che-25-20240328_110101.mp4'
     # calib_path = '/home/manu/nfs/BCS_results/BCS_results_VP2VP3/session5_center/system_Transform3D_640_360_VP2VP3.json'
     # calib_path = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/results/session6_center/system_dubska_optimal_scale_vp2.json'
     # vid_path = '/media/manu/data/data/vehicle-speed/Set05_video01-002.h264'
-    calib_path = '/home/manu/tmp/video_good.json'
 
     model = keras_retinanet.models.load_model(model_path, backbone_name='resnet50', convert=False)
 
     print(model.summary)
     model._make_predict_function()
 
-    test_video(model, vid_path, calib_path, 640, 360, args.batch_size, 'result', '23', online=True,
+    test_video(model, vid_path, calib_path, 640, 360, args.batch_size, 'result', '23', online=False,
                fake=False, out_path=args.output_path, show=args.show)

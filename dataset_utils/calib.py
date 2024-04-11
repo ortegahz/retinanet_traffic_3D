@@ -28,8 +28,8 @@ def get_vp1(cap, mask, debug=False):
 
     acc = Accumulator(size=256, debug=debug, height=mask.shape[0], width=mask.shape[1])
     cnt = 0
-    while ret and cnt < 1000:
-    # while ret:
+    # while ret and cnt < 1000:
+    while ret:
         ret, next_frame = cap.read()
         if not ret or next_frame is None:
             continue
@@ -83,8 +83,8 @@ def get_vp2(vp1, cap, mask, skip=10, debug=False):
     cnt = -10
     ret = True
 
-    while ret and cnt < 1000:
-    # while ret:
+    # while ret and cnt < 1000:
+    while ret:
         for _ in range(skip):
             ret, frame = cap.read()
         if frame is None:
@@ -240,8 +240,8 @@ if __name__ == "__main__":
     # for vid, calib in zip(vid_list, calib_list):
     #     calib_video(vid, debug=False, out_path=calib)
 
-    vid = '/media/manu/data/videos/vlc-record-2024-04-02-10h31m02s-rtsp___192.168.1.108_554_cam_realmonitor-.mp4'
+    vid = '/home/Huangzhe/videos/vlc-record-2024-04-02-10h31m02s-rtsp___192.168.1.108_554_cam_realmonitor-.mp4'
     # vid = '/media/manu/data/data/2016-ITS-BrnoCompSpeed/dataset/session5_center/video.avi'
     # vid = '/home/manu/tmp/che-30-20240328_110225.mp4'
     # vid = '/media/manu/data/data/vehicle-speed/Set05_video01-002.h264'
-    calib_video(vid, out_path='/home/manu/tmp/video.json', debug=False)
+    calib_video(vid, out_path='/home/Huangzhe/tmp/video.json', debug=False)

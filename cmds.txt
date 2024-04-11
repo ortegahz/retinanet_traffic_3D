@@ -1,0 +1,24 @@
+# ssh
+cd /tmp/pycharm_project_290
+
+# install
+conda install tensorflow-gpu==1.14
+pip install keras==2.2.3
+pip install keras-resnet
+pip install opencv-python==4.0.0.21
+pip install cython
+pip install pillow
+pip install h5py==2.10.0
+python setup.py build_ext --inplace
+
+# data
+scp -r /media/manu/data/softwares/Anaconda3-2023.09-0-Linux-x86_64.sh Huangzhe@172.20.254.200:/home/Huangzhe
+
+dataset_utils/fromBrnoCompSpeed.py
+dataset_utils/generate.py
+
+# test
+dataset_utils/test.py
+
+# train
+python keras_retinanet/bin/train.py --no-evaluation --backbone resnet50 --epochs 30 --steps 10000 --batch-size 16 --pair 23 --image-min-side 360 --image-max-side 640 --centers --gpu 0 --snapshot-path ./snapshots/640_360_23_0 --tensorboard-dir ./logs/640_360_23_0 BC+BCS

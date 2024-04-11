@@ -1,9 +1,9 @@
 import json
-import pickle
-import time
-import cv2
 import os
+import pickle
 import sys
+
+import cv2
 import numpy as np
 
 # Script which creates training data from the BrnoCompSpeed dataset for the Transform3D and Transform2D variants from
@@ -14,8 +14,7 @@ import numpy as np
 if os.name == 'nt':
     sys.path[0:0] = [os.path.join(sys.path[0], '../../Mask_RCNN')]
 else:
-    # sys.path[0:0] = ['/home/kocur/code/Mask_RCNN']
-    sys.path[0:0] = ['/home/k/kocur15/code/Mask_RCNN']
+    sys.path[0:0] = ['/home/Huangzhe/workspace/Mask_RCNN']
 
 import coco as coco
 import model as modellib
@@ -24,12 +23,11 @@ import os
 
 # from dataset_utils.warper import get_transform_matrix, intersection, line
 if os.name == 'nt':
-    from dataset_utils.warper import get_transform_matrix, get_transform_matrix_with_criterion
     from dataset_utils.geometry import line, intersection, computeCameraCalibration
 
     COCO_MODEL_PATH = os.path.join('D:/Skola/PhD/code/Mask_RCNN', "mask_rcnn_coco.h5")
 else:
-    from dataset_utils.warper import get_transform_matrix, get_transform_matrix_with_criterion
+    from dataset_utils.warper import get_transform_matrix_with_criterion
     from dataset_utils.geometry import line, intersection, computeCameraCalibration
 
     COCO_MODEL_PATH = os.path.join('/home/k/kocur15/code/Mask_RCNN', "mask_rcnn_coco.h5")
@@ -312,55 +310,58 @@ if __name__ == '__main__':
     vid_lists = []
     calib_lists = []
 
-    # if os.name == 'nt':
-    #     vid_path = 'D:/Skola/PhD/data/2016-ITS-BrnoCompSpeed/dataset'
-    #     ds_path = 'D:/Skola/PhD/data/BCS_boxed_12/'
-    #     results_path = 'D:/Skola/PhD/data/2016-ITS-BrnoCompSpeed/results/'
-    # else:
-    #     vid_path = '/home/k/kocur15/data/2016-ITS-BrnoCompSpeed/dataset/'
-    #     results_path = '/home/k/kocur15/data/2016-ITS-BrnoCompSpeed/results/'
-    #     ds_path = '/home/k/kocur15/data/BCS_boxed_rot12/'
-    #
-    # for i in range(0,7):
-    #     dir_list = ['session{}_center'.format(i), 'session{}_left'.format(i), 'session{}_right'.format(i)]
-    #     vid_list = [os.path.join(vid_path, d, 'video.avi') for d in dir_list]
-    #     calib_list = [os.path.join(results_path, d, 'system_SochorCVIU_ManualCalib_ManualScale.json') for d in dir_list]
-    #     vid_lists.append(vid_list)
-    #     calib_lists.append(calib_list)
-    #
+    if os.name == 'nt':
+        vid_path = 'D:/Skola/PhD/data/2016-ITS-BrnoCompSpeed/dataset'
+        ds_path = 'D:/Skola/PhD/data/BCS_boxed_12/'
+        results_path = 'D:/Skola/PhD/data/2016-ITS-BrnoCompSpeed/results/'
+    else:
+        vid_path = '/home/Huangzhe/data/2016-ITS-BrnoCompSpeed/dataset/'
+        results_path = '/home/Huangzhe/data/2016-ITS-BrnoCompSpeed/results/'
+        ds_path = '/home/Huangzhe/data/BCS_boxed_rot12/'
+
+    for i in range(0, 7):
+        dir_list = ['session{}_center'.format(i), 'session{}_left'.format(i), 'session{}_right'.format(i)]
+        vid_list = [os.path.join(vid_path, d, 'video.avi') for d in dir_list]
+        calib_list = [os.path.join(results_path, d, 'system_dubska_optimal_calib.json') for d in dir_list]
+        # pkl_path = os.path.join(ds_path, 'dataset_9.pkl')
+        # image_path = os.path.join(ds_path, 'images_9')
+        vid_lists.append(vid_list)
+        calib_lists.append(calib_list)
+
     # for i in range(4):
-    #     boxer = BCS_boxer(model, vid_lists[i], calib_lists[i], pkl_paths[i], image_paths[i], 960, 540, save_often = True, n = 25)
+    #     boxer = BCS_boxer(model, vid_lists[i], calib_lists[i],
+    #                       pkl_paths[i], image_paths[i], 960, 540, save_often=True, n=25)
     #     boxer.process()
 
-    if os.name == 'nt':
-        vid_path = 'D:/Skola/PhD/data/LuvizonDataset/dataset/'
-        results_path = 'D:/Skola/PhD/data/LuvizonDataset/results/'
-        ds_path = 'D:/Skola/PhD/data/BCS_boxed23/'
-    else:
-        vid_path = '/home/k/kocur15/data/luvizon/dataset/'
-        results_path = '/home/k/kocur15/data/luvizon/results/'
-        ds_path = '/home/k/kocur15/data/BCS_boxed23/'
-
-    # # sample vid_dict
-    # vid_dict = {1: [1], 2: [1], 3: [1], 4: [1], 5: [1]}
+    # if os.name == 'nt':
+    #     vid_path = 'D:/Skola/PhD/data/LuvizonDataset/dataset/'
+    #     results_path = 'D:/Skola/PhD/data/LuvizonDataset/results/'
+    #     ds_path = 'D:/Skola/PhD/data/BCS_boxed23/'
+    # else:
+    #     vid_path = '/home/k/kocur15/data/luvizon/dataset/'
+    #     results_path = '/home/k/kocur15/data/luvizon/results/'
+    #     ds_path = '/home/k/kocur15/data/BCS_boxed23/'
     #
-    # # full vid dict
-    # vid_dict = {1: [1, 2, 3, 4], 2: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 3: [1, 2], 4: [1, 2], 5: [1]}
-
-    # train dict
-    vid_dict = {1: [3, 4], 2: [7, 8, 9, 10, 11], 3: [2], 4: [2]}
-
-    vid_list = []
-    for i in vid_dict.keys():
-        vid_list.extend(
-            [os.path.join(vid_path, 'subset{:02d}'.format(i), 'video{:02d}'.format(j), 'video.h264') for j in
-             vid_dict[i]])
-
-    calib_path = os.path.join(results_path, 'subset01', 'video01', 'calib.json')
-    calib_list = [calib_path for _ in vid_list]
-
-    pkl_path = os.path.join(ds_path, 'dataset_9.pkl')
-    image_path = os.path.join(ds_path, 'images_9')
-
-    boxer = BCS_boxer(model, vid_list, calib_list, pkl_path, image_path, 960, 540, save_often=True, n=15)
-    boxer.process()
+    # # # sample vid_dict
+    # # vid_dict = {1: [1], 2: [1], 3: [1], 4: [1], 5: [1]}
+    # #
+    # # # full vid dict
+    # # vid_dict = {1: [1, 2, 3, 4], 2: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 3: [1, 2], 4: [1, 2], 5: [1]}
+    #
+    # # train dict
+    # vid_dict = {1: [3, 4], 2: [7, 8, 9, 10, 11], 3: [2], 4: [2]}
+    #
+    # vid_list = []
+    # for i in vid_dict.keys():
+    #     vid_list.extend(
+    #         [os.path.join(vid_path, 'subset{:02d}'.format(i), 'video{:02d}'.format(j), 'video.h264') for j in
+    #          vid_dict[i]])
+    #
+    # calib_path = os.path.join(results_path, 'subset01', 'video01', 'calib.json')
+    # calib_list = [calib_path for _ in vid_list]
+    #
+    # pkl_path = os.path.join(ds_path, 'dataset_9.pkl')
+    # image_path = os.path.join(ds_path, 'images_9')
+    #
+    # boxer = BCS_boxer(model, vid_list, calib_list, pkl_path, image_path, 960, 540, save_often=True, n=15)
+    # boxer.process()
